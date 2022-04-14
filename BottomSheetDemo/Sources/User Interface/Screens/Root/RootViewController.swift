@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import SnapKit
 import BottomSheet
 
 final class RootViewController: UIViewController {
@@ -33,19 +32,23 @@ final class RootViewController: UIViewController {
     }
     
     private func setupSubviews() {
+        
         if #available(iOS 13.0, *) {
             view.backgroundColor = .systemBackground
         } else {
             view.backgroundColor = .white
         }
-
+        
         view.addSubview(button)
         button.addTarget(self, action: #selector(handleShowBottomSheet), for: .touchUpInside)
-        button.snp.makeConstraints {
-            $0.center.equalToSuperview()
-            $0.width.equalTo(200)
-            $0.height.equalTo(44)
-        }
+        
+        button.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            button.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            button.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            button.widthAnchor.constraint(equalToConstant: 200),
+            button.heightAnchor.constraint(equalToConstant: 44)
+        ])
     }
     
     private var transitionDelegate: UIViewControllerTransitioningDelegate?
@@ -61,12 +64,14 @@ final class RootViewController: UIViewController {
     }
 }
 
+// MARK: - BottomSheetPresentationControllerFactory
 extension RootViewController: BottomSheetPresentationControllerFactory {
+    
     func makeBottomSheetPresentationController(
         presentedViewController: UIViewController,
         presentingViewController: UIViewController?
     ) -> BottomSheetPresentationController {
-        .init(
+        return BottomSheetPresentationController(
             presentedViewController: presentedViewController,
             presentingViewController: presentingViewController,
             dismissalHandler: self
@@ -74,8 +79,12 @@ extension RootViewController: BottomSheetPresentationControllerFactory {
     }
 }
 
+// MARK: - BottomSheetModalDismissalHandler
 extension RootViewController: BottomSheetModalDismissalHandler {
-    var canBeDismissed: Bool { true }
+    
+    var canBeDismissed: Bool {
+        return true
+    }
     
     func performDismissal(animated: Bool) {
         presentedViewController?.dismiss(animated: animated, completion: nil)

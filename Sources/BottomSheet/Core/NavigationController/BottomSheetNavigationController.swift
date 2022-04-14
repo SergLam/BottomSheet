@@ -116,6 +116,7 @@ public final class BottomSheetNavigationController: UINavigationController {
     }
 }
 
+// MARK: - UINavigationControllerDelegate
 extension BottomSheetNavigationController: UINavigationControllerDelegate {
     public func navigationController(
         _ navigationController: UINavigationController,

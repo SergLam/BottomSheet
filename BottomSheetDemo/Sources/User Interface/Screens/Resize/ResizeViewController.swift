@@ -40,7 +40,7 @@ final class ResizeViewController: UIViewController {
         return button
     }()
     
-    private let _scrollView = UIScrollView()
+    private let reSizeScrollView = UIScrollView()
     
     // MARK: - Private properties
 
@@ -96,59 +96,76 @@ final class ResizeViewController: UIViewController {
     private func setupSubviews() {
         view.backgroundColor = .white
         
-        view.addSubview(_scrollView)
-        _scrollView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
-        }
-        _scrollView.alwaysBounceVertical = true
+        view.addSubview(reSizeScrollView)
+        reSizeScrollView.alwaysBounceVertical = true
         
-        _scrollView.addSubview(contentSizeLabel)
-        contentSizeLabel.snp.makeConstraints {
-            $0.leading.top.trailing.equalToSuperview()
-        }
+        reSizeScrollView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            reSizeScrollView.topAnchor.constraint(equalTo: view.topAnchor),
+            reSizeScrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            reSizeScrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            reSizeScrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
+        
+        reSizeScrollView.addSubview(contentSizeLabel)
+        
+        contentSizeLabel.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            contentSizeLabel.topAnchor.constraint(equalTo: reSizeScrollView.topAnchor),
+            contentSizeLabel.leadingAnchor.constraint(lessThanOrEqualTo: reSizeScrollView.leadingAnchor),
+            contentSizeLabel.trailingAnchor.constraint(greaterThanOrEqualTo: reSizeScrollView.trailingAnchor),
+            contentSizeLabel.centerXAnchor.constraint(equalTo: reSizeScrollView.centerXAnchor)
+        ])
         
         let buttons = actions.map(UIButton.init(buttonAction:))
         let stackView = UIStackView(arrangedSubviews: buttons)
         stackView.distribution = .fillEqually
         stackView.spacing = 8
 
-        _scrollView.addSubview(stackView)
-        stackView.snp.makeConstraints {
-            $0.top.equalTo(contentSizeLabel.snp.bottom).offset(8)
-            $0.width.equalToSuperview().offset(-32)
-            $0.leading.trailing.equalToSuperview().inset(16)
-            $0.height.equalTo(44)
-        }
+        reSizeScrollView.addSubview(stackView)
+        
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            stackView.topAnchor.constraint(equalTo: contentSizeLabel.bottomAnchor, constant: 8),
+            stackView.leadingAnchor.constraint(lessThanOrEqualTo: reSizeScrollView.leadingAnchor, constant: 16),
+            stackView.trailingAnchor.constraint(greaterThanOrEqualTo: reSizeScrollView.trailingAnchor, constant: -16),
+            stackView.centerXAnchor.constraint(equalTo: reSizeScrollView.centerXAnchor),
+            stackView.heightAnchor.constraint(equalToConstant: 44)
+        ])
         
         if !isShowNextButtonHidden {
-            _scrollView.addSubview(showNextButton)
+            reSizeScrollView.addSubview(showNextButton)
             showNextButton.addTarget(self, action: #selector(handleShowNext), for: .touchUpInside)
-            showNextButton.snp.makeConstraints {
-                $0.top.equalTo(stackView.snp.bottom).offset(8)
-                $0.centerX.equalTo(stackView)
-                $0.width.equalTo(300)
-                $0.height.equalTo(50)
-            }
+            
+            showNextButton.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                showNextButton.topAnchor.constraint(equalTo: stackView.bottomAnchor, constant: 8),
+                showNextButton.centerXAnchor.constraint(equalTo: stackView.centerXAnchor),
+                showNextButton.widthAnchor.constraint(equalToConstant: 300),
+                showNextButton.heightAnchor.constraint(equalToConstant: 50)
+            ])
         }
         
         if !isShowRootButtonHidden {
-            _scrollView.addSubview(showRootButton)
+            reSizeScrollView.addSubview(showRootButton)
             showRootButton.addTarget(self, action: #selector(handleShowRoot), for: .touchUpInside)
-            showRootButton.snp.makeConstraints {
-                $0.top.equalTo(isShowNextButtonHidden ? stackView.snp.bottom : showNextButton.snp.bottom).offset(8)
-                $0.centerX.equalTo(stackView)
-                $0.width.equalTo(300)
-                $0.height.equalTo(50)
-            }
+            
+            showRootButton.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                showRootButton.topAnchor.constraint(equalTo: isShowNextButtonHidden ? stackView.bottomAnchor : showNextButton.bottomAnchor, constant: 8),
+                showRootButton.centerXAnchor.constraint(equalTo: stackView.centerXAnchor),
+                showRootButton.widthAnchor.constraint(equalToConstant: 300),
+                showRootButton.heightAnchor.constraint(equalToConstant: 50)
+            ])
         }
     }
     
     // MARK: - Private methods
     
     private func updatePreferredContentSize() {
-        _scrollView.contentSize = CGSize(width: UIScreen.main.bounds.width, height: currentHeight)
+        reSizeScrollView.contentSize = CGSize(width: UIScreen.main.bounds.width, height: currentHeight)
         contentSizeLabel.text = "preferredContentHeight = \(currentHeight)"
-        preferredContentSize = _scrollView.contentSize
+        preferredContentSize = reSizeScrollView.contentSize
     }
     
     private func updateContentHeight(newValue: CGFloat) {
@@ -175,6 +192,6 @@ final class ResizeViewController: UIViewController {
 
 extension ResizeViewController: ScrollableBottomSheetPresentedController {
     var scrollView: UIScrollView? {
-        _scrollView
+        return reSizeScrollView
     }
 }
